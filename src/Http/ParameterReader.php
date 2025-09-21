@@ -44,14 +44,16 @@ class ParameterReader
 
         $type = $parameter->getType();
         if ($type instanceof ReflectionNamedType) {
-            $type = $type->getName();
+            $typeName = $type->getName();
+        } else {
+            $typeName = null;
         }
 
-        if ($type === null || $value === null) {
+        if ($typeName === null || $value === null) {
             return null;
         }
 
-        return match ($type) {
+        return match ($typeName) {
             LocalDate::class => LocalDate::parse($value),
             LocalDateTime::class => LocalDateTime::parse($value),
             LocalTime::class => LocalTime::parse($value),

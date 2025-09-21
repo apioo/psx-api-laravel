@@ -26,6 +26,7 @@ use Illuminate\Contracts\Container\ContextualAttribute;
 use Illuminate\Http\Request;
 use PSX\Api\Attribute as Attr;
 use PSX\ApiLaravel\Http\ParameterReader;
+use ReflectionParameter;
 
 /**
  * Query
@@ -37,14 +38,13 @@ use PSX\ApiLaravel\Http\ParameterReader;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 class Query extends Attr\Query implements ContextualAttribute
 {
-    public static function resolve(self $attribute, Container $container)
+    public static function resolve(self $attribute, Container $container, ReflectionParameter $parameter)
     {
         /** @var Request $request */
         $request = $container->get('request');
         $parameterReader = $container->get(ParameterReader::class);
 
-        $parameter = null; // @TODO get ReflectionParameter
-        $name = $attribute->name ?? '';
+        $name = $attribute->name ?? $parameter->getName();
         $value = $request->query->get($name);
 
         return $parameterReader->parse($value, $parameter, $name, 'query');

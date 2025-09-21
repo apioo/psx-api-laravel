@@ -31,6 +31,8 @@ use PSX\Data\Body as HttpBody;
 use PSX\Data\Reader;
 use PSX\Http\Stream\Stream;
 use PSX\Schema\SchemaSource;
+use ReflectionNamedType;
+use ReflectionParameter;
 
 /**
  * Body
@@ -42,14 +44,20 @@ use PSX\Schema\SchemaSource;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 class Body extends Attr\Body implements ContextualAttribute
 {
-    public static function resolve(self $attribute, Container $container)
+    public static function resolve(self $attribute, Container $container, ReflectionParameter $parameter)
     {
         /** @var Request $request */
         $request = $container->get('request');
         $requestReader = $container->get(RequestReader::class);
 
-        $type = HttpBody\Json::class; // @TODO get type from property
-        return match ($type) {
+        $type = $parameter->getType();
+        if ($type instanceof ReflectionNamedType) {
+            $typeName = $type->getName();
+        } else {
+            $typeName = null;
+        }
+
+        return match ($typeName) {
             StreamInterface::class => new Stream($request->getContent(true)),
             HttpBody\Json::class => HttpBody\Json::from($requestReader->getBody($request, Reader\Json::class)),
             HttpBody\Form::class => HttpBody\Form::from($requestReader->getBody($request, Reader\Form::class)),
