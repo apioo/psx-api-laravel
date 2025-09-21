@@ -35,6 +35,8 @@ use PSX\Api\ScannerInterface;
 use PSX\ApiLaravel\Api\Parser\LaravelAttribute;
 use PSX\ApiLaravel\Api\Repository\SDKgen\Config;
 use PSX\ApiLaravel\Api\Scanner\RouterScanner;
+use PSX\ApiLaravel\Commands\ModelCommand;
+use PSX\ApiLaravel\Commands\SdkCommand;
 use PSX\ApiLaravel\Http\ParameterReader;
 use PSX\ApiLaravel\Http\RequestReader;
 use PSX\ApiLaravel\Http\ResponseBuilder;
@@ -53,10 +55,22 @@ use PSX\Schema\SchemaManagerInterface;
  */
 class ApiServiceProvider extends IlluminateServiceProvider
 {
-    public function register()
+    public function boot(): void
     {
-        $this->app->configPath(__DIR__ . '/../config/psx.php');
+        $this->publishes([
+            __DIR__.'/../config/psx.php' => config_path('psx.php'),
+        ]);
 
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ModelCommand::class,
+                SdkCommand::class,
+            ]);
+        }
+    }
+
+    public function register(): void
+    {
         $this->app->singleton(SchemaManager::class, function (Application $app) {
             return new SchemaManager($app['cache.psr6'], debug: $app->hasDebugModeEnabled());
         });
