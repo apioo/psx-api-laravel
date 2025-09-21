@@ -20,6 +20,7 @@
 
 namespace PSX\ApiLaravel\Http;
 
+use Illuminate\Http\Request;
 use PSX\Data\Exception\ParseException;
 use PSX\Data\Exception\ReaderNotFoundException;
 use PSX\Data\Exception\ReadException;
@@ -29,7 +30,6 @@ use PSX\Http\Exception\BadRequestException;
 use PSX\Http\Exception\UnsupportedMediaTypeException;
 use PSX\Schema\Validation\ValidatorInterface;
 use PSX\Schema\Visitor\TypeVisitor;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * RequestReader

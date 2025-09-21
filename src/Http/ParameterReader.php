@@ -24,6 +24,7 @@ use PSX\DateTime\LocalDate;
 use PSX\DateTime\LocalDateTime;
 use PSX\DateTime\LocalTime;
 use PSX\Http\Exception\BadRequestException;
+use ReflectionNamedType;
 use ReflectionParameter;
 
 /**
@@ -42,7 +43,7 @@ class ParameterReader
         }
 
         $type = $parameter->getType();
-        if ($type instanceof \ReflectionNamedType) {
+        if ($type instanceof ReflectionNamedType) {
             $type = $type->getName();
         }
 
