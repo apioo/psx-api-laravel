@@ -27,7 +27,6 @@ use PSX\Api\Scanner\FilterFactoryInterface;
 use PSX\Api\ScannerInterface;
 use PSX\Schema\Generator\Code\Chunks;
 use PSX\Schema\Generator\Config;
-use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * SdkCommand
@@ -38,7 +37,13 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class SdkCommand extends Command
 {
-    protected $signature = 'generate:sdk';
+    protected $signature = 'generate:sdk 
+        {type? : The target format of the SDK}
+        {--namespace= : A namespace which is used}
+        {--filter= : Optional a filter which is used}
+        {--output=output : Optional the output dir, the default is output/}
+        {--config= : Optional the generator config}
+        {--raw : Ignore packing the generated files in a zip file}';
 
     protected $description = 'Generates a client SDK';
 
@@ -49,16 +54,16 @@ class SdkCommand extends Command
 
     public function handle(): int
     {
-        $dir = $this->getOutputDir($this->input);
+        $dir = $this->getOutputDir();
         $registry = $this->factory->factory();
 
-        $type = $this->input->getArgument('type') ?? LocalRepository::CLIENT_TYPESCRIPT;;
+        $type = $this->argument('type') ?? LocalRepository::CLIENT_TYPESCRIPT;;
         if (!is_string($type) || !in_array($type, $registry->getPossibleTypes())) {
             throw new \InvalidArgumentException('Provided an invalid type, possible values are: ' . implode(', ', $registry->getPossibleTypes()));
         }
 
-        $config = $this->getConfig($this->input);
-        $filterName = $this->input->getOption('filter');
+        $config = $this->getConfig();
+        $filterName = $this->option('filter');
         if (empty($filterName)) {
             $filterName = $this->filterFactory->getDefault();
         }
@@ -74,12 +79,12 @@ class SdkCommand extends Command
         $generator = $registry->getGenerator($type, $config);
         $extension = $registry->getFileExtension($type);
 
-        $this->output->writeln('Generating ...');
+        $this->line('Generating ...');
 
         $content = $generator->generate($this->scanner->generate($filter));
 
         if ($content instanceof Chunks) {
-            if ($this->input->getOption('raw')) {
+            if ($this->option('raw')) {
                 foreach ($content->getChunks() as $identifier => $code) {
                     file_put_contents($dir . '/' . $identifier, (string) $code);
                 }
@@ -102,19 +107,19 @@ class SdkCommand extends Command
             file_put_contents($dir . '/' . $file, $content);
         }
 
-        $this->output->writeln('Successful!');
+        $this->info('Successful!');
 
         return 0;
     }
 
-    private function getConfig(InputInterface $input): ?Config
+    private function getConfig(): ?Config
     {
-        $config = $input->getOption('config');
+        $config = $this->option('config');
         if (!empty($config)) {
             return Config::fromQueryString($config);
         }
 
-        $namespace = $input->getOption('namespace');
+        $namespace = $this->option('namespace');
         $config = new Config();
         if (!empty($namespace)) {
             $config->put(Config::NAMESPACE, $namespace);
@@ -123,9 +128,9 @@ class SdkCommand extends Command
         return $config;
     }
 
-    private function getOutputDir(InputInterface $input): string
+    private function getOutputDir(): string
     {
-        $outputDir = $input->getOption('output');
+        $outputDir = $this->option('output');
         if (is_dir($outputDir)) {
             return $outputDir;
         }
