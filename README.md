@@ -171,8 +171,8 @@ incoming and outgoing payload s.
 php artisan generate:model
 ```
 
-This commands reads the [TypeSchema](https://typeschema.org/) specification located at `config/typeschema.json`
-and writes all model classes to `src/Model`. In general TypeSchema is a JSON specification to describe data models.
+This commands reads the [TypeSchema](https://typeschema.org/) specification located at `resources/schema/typeschema.json`
+and writes all model classes to `app/Dto`. In general TypeSchema is a JSON specification to describe data models.
 The following is an example specification to generate a simple Student model.
 
 ```json
