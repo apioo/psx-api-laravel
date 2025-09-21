@@ -62,8 +62,8 @@ readonly class RouterScanner implements ScannerInterface
         $classes = [];
         $routes = $this->router->getRoutes()->getRoutes();
         foreach ($routes as $route) {
-            $controllerClass = $this->getControllerClass($route->controller);
-            if (empty($controllerClass)) {
+            $controllerClass = $route->getControllerClass();
+            if (empty($controllerClass) || !class_exists($controllerClass)) {
                 continue;
             }
 
@@ -71,25 +71,5 @@ readonly class RouterScanner implements ScannerInterface
         }
 
         return array_unique($classes);
-    }
-
-    private function getControllerClass(mixed $controller): ?string
-    {
-        if (is_object($controller)) {
-            return $controller::class;
-        }
-
-        if (str_contains($controller, '@')) {
-            $parts = explode('@', $controller, 2);
-            $class = $parts[0] ?? '';
-
-            if (class_exists($class)) {
-                return $class;
-            }
-        } elseif (class_exists($controller)) {
-            return $controller;
-        }
-
-        return null;
     }
 }
