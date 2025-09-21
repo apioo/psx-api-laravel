@@ -20,6 +20,7 @@
 
 namespace PSX\ApiLaravel\Api\Parser;
 
+use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use PSX\Api\Attribute as Attr;
 use PSX\Api\Exception\ParserException;
@@ -29,7 +30,6 @@ use PSX\Api\Parser\Attribute\Meta;
 use PSX\Api\Util\Inflection;
 use PSX\Schema\SchemaManagerInterface;
 use ReflectionMethod;
-use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * This parser builds transparently PSX attributes based on the Laravel routing
@@ -58,7 +58,7 @@ class LaravelAttribute extends Attribute
 
         $route = $this->router->getRoutes()->getByAction($method->getDeclaringClass()->getName() . '@' . $method->getName());
         if ($route instanceof Route) {
-            $result[] = new Attr\Path(Inflection::convertPlaceholderToColon($route->getPath()));
+            $result[] = new Attr\Path(Inflection::convertPlaceholderToColon($route->uri()));
             $result = array_merge($result, $this->getMethods($route));
         }
 
@@ -71,7 +71,7 @@ class LaravelAttribute extends Attribute
      */
     private function getMethods(Route $route): array
     {
-        $methods = $route->getMethods();
+        $methods = $route->methods();
         if (empty($methods)) {
             throw new ParserException('No HTTP methods configured at route ' . $route->getName() . ' (' . $route->getPath() . ') you need to configure a concrete HTTP method for every route');
         }
