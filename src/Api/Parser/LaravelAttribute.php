@@ -73,7 +73,7 @@ class LaravelAttribute extends Attribute
     {
         $methods = $route->methods();
         if (empty($methods)) {
-            throw new ParserException('No HTTP methods configured at route ' . $route->getName() . ' (' . $route->getPath() . ') you need to configure a concrete HTTP method for every route');
+            throw new ParserException('No HTTP methods configured at route ' . $route->getName() . ' (' . $route->uri() . ') you need to configure a concrete HTTP method for every route');
         }
 
         $result = [];
@@ -95,7 +95,7 @@ class LaravelAttribute extends Attribute
         }
 
         if (count($result) > 1) {
-            throw new ParserException('Multiple HTTP methods configured at route ' . $route->getName() . ' (' . $route->getPath() . ') you need to configure exactly one HTTP method at a route');
+            throw new ParserException('Multiple HTTP methods configured at route ' . $route->getName() . ' (' . $route->uri() . ') you need to configure exactly one HTTP method at a route');
         }
 
         return $result;
