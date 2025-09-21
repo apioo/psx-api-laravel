@@ -47,20 +47,20 @@ class ModelCommand extends Command
 
     public function handle(): int
     {
-        $source = $this->projectDir . '/config/typeschema.json';
-        $target = $this->projectDir . '/src/Model';
+        $source = $this->projectDir . '/resources/schema/typeschema.json';
+        $target = $this->projectDir . '/app/Dto';
         $format = 'php';
 
         if (!is_file($source)) {
-            throw new \RuntimeException('TypeSchema file does not exist at config/typeschema.json, please create the file in order to generate the models, more information about TypeSchema at: typeschema.org');
+            throw new \RuntimeException('TypeSchema file does not exist at resources/schema/typeschema.json, please create the file in order to generate the models, more information about TypeSchema at: typeschema.org');
         }
 
         if (!is_dir($target)) {
-            throw new \RuntimeException('The folder src/Model does not exist, please create it in order to generate the models');
+            throw new \RuntimeException('The folder src/Dto does not exist, please create it in order to generate the models');
         }
 
         $config = new Config();
-        $config->put(Config::NAMESPACE, 'App\\Model');
+        $config->put(Config::NAMESPACE, 'App\\Dto');
 
         $count = $this->generate($source, $target, $format, $config);
 
