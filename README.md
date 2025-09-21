@@ -57,36 +57,26 @@ final class PostController extends Controller
     {
     }
 
-    #[Get]
-    #[Path('/post'])
     public function getAll(#[Query] ?string $filter): PostCollection
     {
         return $this->repository->findAll($filter);
     }
 
-    #[Get]
-    #[Path('/post/{id}')]
     public function get(#[Param] int $id): Post
     {
         return $this->repository->find($id);
     }
 
-    #[Post]
-    #[Path('/post')]
     public function create(#[Body] Post $payload): Message
     {
         return $this->service->create($payload);
     }
 
-    #[Put]
-    #[Path('/post/{id}')]
     public function update(#[Param] int $id, #[Body] Post $payload): Message
     {
         return $this->service->update($id, $payload);
     }
 
-    #[Delete]
-    #[Path('/post/{id}')]
     public function delete(#[Param] int $id): Message
     {
         return $this->service->delete($id);
@@ -118,8 +108,6 @@ If you need a raw payload we provide the following type-hints to receive a raw v
 For example to write a simple proxy method which returns the provided JSON payload s.
 
 ```php
-#[Post]
-#[Path('/post')]
 public function create(#[Body] Json $body): Json
 {
     return $body;
@@ -132,17 +120,15 @@ In case your method can return different response types you can use the `#[Outgo
 define a response schema independent of the return type.
 
 ```php
-#[Post]
-#[Path('/post')]
 #[Outgoing(201, Message::class)]
 #[Outgoing(400, Error::class)]
-public function create(#[Body] Post $body): JsonResponse
+public function create(#[Body] Post $body)
 {
     if (empty($body->getTitle())) {
-        return new JsonResponse(new Error('An error occurred'), 400);
+        return response()->json(new Error('An error occurred'), 400);
     }
 
-    return new JsonResponse(new Message('Post successfully created')], 201);
+    return response()->json(new Message('Post successfully created'), 201);
 }
 ```
 
