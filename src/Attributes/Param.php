@@ -25,6 +25,7 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\ContextualAttribute;
 use Illuminate\Http\Request;
 use PSX\Api\Attribute as Attr;
+use PSX\ApiLaravel\Http\ParameterReader;
 
 /**
  * Param
@@ -40,7 +41,12 @@ class Param extends Attr\Param implements ContextualAttribute
     {
         /** @var Request $request */
         $request = $container->get('request');
+        $parameterReader = $container->get(ParameterReader::class);
 
-        return $request->route($attribute->name);
+        $parameter = null; // @TODO get ReflectionParameter
+        $name = $attribute->name ?? '';
+        $value = $request->route($name);
+
+        return $parameterReader->parse($value, $parameter, $name, 'param');
     }
 }

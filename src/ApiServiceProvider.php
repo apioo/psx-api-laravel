@@ -22,8 +22,6 @@ namespace PSX\ApiLaravel;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\RouteCollectionInterface;
-use Illuminate\Routing\Router;
-use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 use PSX\Api\ApiManager;
 use PSX\Api\ApiManagerInterface;
@@ -37,6 +35,7 @@ use PSX\Api\ScannerInterface;
 use PSX\ApiLaravel\Api\Parser\LaravelAttribute;
 use PSX\ApiLaravel\Api\Repository\SDKgen\Config;
 use PSX\ApiLaravel\Api\Scanner\RouterScanner;
+use PSX\ApiLaravel\Http\ParameterReader;
 use PSX\ApiLaravel\Http\RequestReader;
 use PSX\ApiLaravel\Http\ResponseBuilder;
 use PSX\Data\Configuration;
@@ -119,7 +118,6 @@ class ApiServiceProvider extends IlluminateServiceProvider
             $manager = new ApiManager($app[SchemaManagerInterface::class], $app[BuilderInterface::class], $app['cache.psr6'], $app->hasDebugModeEnabled());
             $manager->register('php', new LaravelAttribute(
                 $app[RouteCollectionInterface::class],
-                $app[UrlGenerator::class],
                 $app[SchemaManagerInterface::class],
                 $app[BuilderInterface::class]
             ));
@@ -131,6 +129,10 @@ class ApiServiceProvider extends IlluminateServiceProvider
 
         $this->app->singleton(RequestReader::class, function (Application $app) {
             return new RequestReader($app[Processor::class]);
+        });
+
+        $this->app->singleton(ParameterReader::class, function (Application $app) {
+            return new ParameterReader();
         });
 
         $this->app->singleton(ResponseBuilder::class, function (Application $app) {

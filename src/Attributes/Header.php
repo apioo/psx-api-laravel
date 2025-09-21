@@ -25,6 +25,7 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\ContextualAttribute;
 use Illuminate\Http\Request;
 use PSX\Api\Attribute as Attr;
+use PSX\ApiLaravel\Http\ParameterReader;
 
 /**
  * Header
@@ -40,7 +41,12 @@ class Header extends Attr\Header implements ContextualAttribute
     {
         /** @var Request $request */
         $request = $container->get('request');
+        $parameterReader = $container->get(ParameterReader::class);
 
-        return $request->headers->get($attribute->name);
+        $parameter = null; // @TODO get ReflectionParameter
+        $name = $attribute->name ?? '';
+        $value = $request->headers->get($name);
+
+        return $parameterReader->parse($value, $parameter, $name, 'header');
     }
 }

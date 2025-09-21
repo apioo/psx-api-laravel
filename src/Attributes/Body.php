@@ -24,29 +24,38 @@ use Attribute;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\ContextualAttribute;
 use Illuminate\Http\Request;
+use Psr\Http\Message\StreamInterface;
 use PSX\Api\Attribute as Attr;
-use PSX\ApiLaravel\Http\ParameterReader;
+use PSX\ApiLaravel\Http\RequestReader;
+use PSX\Data\Body;
+use PSX\Data\Reader;
+use PSX\Http\Stream\Stream;
+use PSX\Schema\SchemaSource;
 
 /**
- * Query
+ * Body
  *
  * @author  Christoph Kappestein <christoph.kappestein@gmail.com>
  * @license http://www.apache.org/licenses/LICENSE-2.0
  * @link    https://phpsx.org
  */
 #[Attribute(Attribute::TARGET_PARAMETER)]
-class Query extends Attr\Query implements ContextualAttribute
+class Body extends Attr\Body implements ContextualAttribute
 {
     public static function resolve(self $attribute, Container $container)
     {
         /** @var Request $request */
         $request = $container->get('request');
-        $parameterReader = $container->get(ParameterReader::class);
+        $requestReader = $container->get(RequestReader::class);
 
-        $parameter = null; // @TODO get ReflectionParameter
-        $name = $attribute->name ?? '';
-        $value = $request->query->get($name);
-
-        return $parameterReader->parse($value, $parameter, $name, 'query');
+        $type = Body\Json::class; // @TODO get type from property
+        return match ($type) {
+            StreamInterface::class => new Stream($request->getContent(true)),
+            Body\Json::class => Body\Json::from($requestReader->getBody($request, Reader\Json::class)),
+            Body\Form::class => Body\Form::from($requestReader->getBody($request, Reader\Form::class)),
+            Body\Multipart::class => $requestReader->getBody($request, Reader\Multipart::class),
+            'string' => (string) $request->getContent(),
+            default => class_exists($type) ? $requestReader->getBodyAs($request, SchemaSource::fromClass($type)) : null,
+        };
     }
 }
