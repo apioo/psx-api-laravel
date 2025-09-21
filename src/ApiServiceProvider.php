@@ -21,7 +21,6 @@
 namespace PSX\ApiLaravel;
 
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Routing\RouteCollectionInterface;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 use PSX\Api\ApiManager;
 use PSX\Api\ApiManagerInterface;
@@ -131,7 +130,7 @@ class ApiServiceProvider extends IlluminateServiceProvider
         $this->app->singleton(ApiManager::class, function (Application $app) {
             $manager = new ApiManager($app[SchemaManagerInterface::class], $app[BuilderInterface::class], $app['cache.psr6'], $app->hasDebugModeEnabled());
             $manager->register('php', new LaravelAttribute(
-                $app[RouteCollectionInterface::class],
+                $app['router'],
                 $app[SchemaManagerInterface::class],
                 $app[BuilderInterface::class]
             ));

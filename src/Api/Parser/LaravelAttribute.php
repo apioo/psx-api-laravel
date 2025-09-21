@@ -20,7 +20,7 @@
 
 namespace PSX\ApiLaravel\Api\Parser;
 
-use Illuminate\Routing\RouteCollectionInterface;
+use Illuminate\Routing\Router;
 use PSX\Api\Attribute as Attr;
 use PSX\Api\Exception\ParserException;
 use PSX\Api\Parser\Attribute;
@@ -40,7 +40,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class LaravelAttribute extends Attribute
 {
-    public function __construct(private RouteCollectionInterface $routeCollection, SchemaManagerInterface $schemaManager, BuilderInterface $builder)
+    public function __construct(private Router $router, SchemaManagerInterface $schemaManager, BuilderInterface $builder)
     {
         parent::__construct($schemaManager, $builder);
     }
@@ -56,7 +56,7 @@ class LaravelAttribute extends Attribute
             $result[] = $attribute->newInstance();
         }
 
-        $route = $this->routeCollection->getByAction($method->getDeclaringClass()->getName() . '@' . $method->getName());
+        $route = $this->router->getRoutes()->getByAction($method->getDeclaringClass()->getName() . '@' . $method->getName());
         if ($route instanceof Route) {
             $result[] = new Attr\Path(Inflection::convertPlaceholderToColon($route->getPath()));
             $result = array_merge($result, $this->getMethods($route));
