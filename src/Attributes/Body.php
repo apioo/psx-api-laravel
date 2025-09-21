@@ -27,7 +27,7 @@ use Illuminate\Http\Request;
 use Psr\Http\Message\StreamInterface;
 use PSX\Api\Attribute as Attr;
 use PSX\ApiLaravel\Http\RequestReader;
-use PSX\Data\Body;
+use PSX\Data\Body as HttpBody;
 use PSX\Data\Reader;
 use PSX\Http\Stream\Stream;
 use PSX\Schema\SchemaSource;
@@ -48,12 +48,12 @@ class Body extends Attr\Body implements ContextualAttribute
         $request = $container->get('request');
         $requestReader = $container->get(RequestReader::class);
 
-        $type = Body\Json::class; // @TODO get type from property
+        $type = HttpBody\Json::class; // @TODO get type from property
         return match ($type) {
             StreamInterface::class => new Stream($request->getContent(true)),
-            Body\Json::class => Body\Json::from($requestReader->getBody($request, Reader\Json::class)),
-            Body\Form::class => Body\Form::from($requestReader->getBody($request, Reader\Form::class)),
-            Body\Multipart::class => $requestReader->getBody($request, Reader\Multipart::class),
+            HttpBody\Json::class => HttpBody\Json::from($requestReader->getBody($request, Reader\Json::class)),
+            HttpBody\Form::class => HttpBody\Form::from($requestReader->getBody($request, Reader\Form::class)),
+            HttpBody\Multipart::class => $requestReader->getBody($request, Reader\Multipart::class),
             'string' => (string) $request->getContent(),
             default => class_exists($type) ? $requestReader->getBodyAs($request, SchemaSource::fromClass($type)) : null,
         };
