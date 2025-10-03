@@ -1,6 +1,8 @@
 
 # PSX API Package
 
+> Note the Laravel integration is currently work in progress. In the package we use custom [Contextual Attributes](https://laravel.com/docs/12.x/container#contextual-attributes) but at the moment it is not possible to access the `ReflectionParameter` inside the resolver, which we need to get the type-hint. We have tried to create a [Pull-Request](https://github.com/laravel/framework/pull/57129) but for now this is not solved.
+
 The PSX API package integrates the [PSX API components](https://phpsx.org/) into Laravel which help
 to build fully type-safe REST APIs. Basically the package provides additional attributes which you
 can use at your [controller](#controller) to map HTTP parameters to arguments of your controller
